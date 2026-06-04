@@ -2,6 +2,7 @@ import { Input, Textarea } from '@cloudflare/kumo/components/input'
 import { Select } from '@cloudflare/kumo/components/select'
 import { useTranslation } from 'react-i18next'
 import { AppDialog } from '@/components/app-dialog'
+import { DataFormDialog } from '@/components/data-form-dialog'
 import type { Project } from '@/services/projects'
 import type { ProjectFormState } from './project-form'
 import type { Dispatch, SetStateAction } from 'react'
@@ -35,7 +36,7 @@ export function ProjectDialogs({
 }: ProjectDialogsProps) {
   const { t } = useTranslation()
 
-  const projectForm = (
+  const renderProjectForm = (showStatus: boolean) => (
     <>
       <Input
         label={t('projects.form.name')}
@@ -52,7 +53,7 @@ export function ProjectDialogs({
         placeholder={t('projects.form.descriptionPlaceholder')}
         onChange={(event) => setFormState(prev => ({ ...prev, description: event.currentTarget.value }))}
       />
-      {editingProject && (
+      {showStatus && (
         <Select
           label={t('projects.form.status')}
           value={String(formState.status ?? 1)}
@@ -67,49 +68,25 @@ export function ProjectDialogs({
 
   return (
     <>
-      <AppDialog
+      <DataFormDialog
         open={createModalOpen}
         title={t('projects.createProject')}
         confirmText={t('projects.createProject')}
         onOpenChange={setCreateModalOpen}
-        onConfirm={() => {
-          const form = document.getElementById('create-project-form') as HTMLFormElement | null
-          form?.requestSubmit()
-        }}
+        onSubmit={onCreate}
       >
-        <form
-          id="create-project-form"
-          className="space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault()
-            onCreate()
-          }}
-        >
-          {projectForm}
-        </form>
-      </AppDialog>
+        {renderProjectForm(false)}
+      </DataFormDialog>
 
-      <AppDialog
+      <DataFormDialog
         open={!!editingProject}
         title={t('projects.editProject')}
         confirmText={t('projects.editProject')}
         onOpenChange={(open) => !open && setEditingProject(null)}
-        onConfirm={() => {
-          const form = document.getElementById('edit-project-form') as HTMLFormElement | null
-          form?.requestSubmit()
-        }}
+        onSubmit={onEdit}
       >
-        <form
-          id="edit-project-form"
-          className="space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault()
-            onEdit()
-          }}
-        >
-          {projectForm}
-        </form>
-      </AppDialog>
+        {renderProjectForm(true)}
+      </DataFormDialog>
 
       <AppDialog
         open={!!deleteProject}

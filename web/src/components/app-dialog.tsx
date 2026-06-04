@@ -3,7 +3,7 @@ import { Button } from '@cloudflare/kumo/components/button'
 import type { ButtonProps } from '@cloudflare/kumo/components/button'
 import type { ReactNode } from 'react'
 
-interface AppDialogProps {
+export interface AppDialogProps {
   open: boolean
   title: ReactNode
   description?: ReactNode

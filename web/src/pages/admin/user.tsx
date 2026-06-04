@@ -7,6 +7,7 @@ import { Select } from '@cloudflare/kumo/components/select'
 import { SensitiveInput } from '@cloudflare/kumo/components/sensitive-input'
 import { PlusIcon } from '@phosphor-icons/react'
 import { AppDialog } from '@/components/app-dialog'
+import { DataFormDialog } from '@/components/data-form-dialog'
 import { DataTable, type DataTableColumn } from '@/components/data-table'
 import { useDataTable } from '@/hooks/use-data-table'
 import { usersService, type User, type CreateUserRequest, type UsersListParams } from '@/services/users'
@@ -218,68 +219,56 @@ export default function UserPage() {
         )}
       />
 
-      <AppDialog
+      <DataFormDialog
         open={createModalOpen}
         title={t('users.createUser')}
         confirmText={t('users.createUser')}
         onOpenChange={setCreateModalOpen}
-        onConfirm={() => {
-          const form = document.getElementById('create-user-form') as HTMLFormElement | null
-          form?.requestSubmit()
-        }}
+        onSubmit={handleCreate}
       >
-        <form
-          id="create-user-form"
-          className="space-y-4"
-          onSubmit={(event) => {
-            event.preventDefault()
-            handleCreate()
-          }}
+        <Input
+          label={t('users.form.username')}
+          required
+          minLength={3}
+          pattern="[a-zA-Z0-9_]+"
+          value={createForm.username}
+          placeholder={t('users.form.usernamePlaceholder')}
+          onChange={(event) => setCreateForm(prev => ({ ...prev, username: event.currentTarget.value }))}
+        />
+        <Input
+          label={t('users.form.realname')}
+          required
+          value={createForm.realname}
+          placeholder={t('users.form.realnamePlaceholder')}
+          onChange={(event) => setCreateForm(prev => ({ ...prev, realname: event.currentTarget.value }))}
+        />
+        <Input
+          label={t('users.form.email')}
+          required
+          type="email"
+          value={createForm.email}
+          placeholder={t('users.form.emailPlaceholder')}
+          onChange={(event) => setCreateForm(prev => ({ ...prev, email: event.currentTarget.value }))}
+        />
+        <SensitiveInput
+          label={t('users.form.password')}
+          required
+          minLength={6}
+          value={createForm.password}
+          placeholder={t('users.form.passwordPlaceholder')}
+          onValueChange={(value) => setCreateForm(prev => ({ ...prev, password: value }))}
+        />
+        <Select
+          label={t('users.form.role')}
+          required
+          value={createForm.role}
+          placeholder={t('users.form.rolePlaceholder')}
+          onValueChange={(value) => setCreateForm(prev => ({ ...prev, role: value as 'admin' | 'user' }))}
         >
-          <Input
-            label={t('users.form.username')}
-            required
-            minLength={3}
-            pattern="[a-zA-Z0-9_]+"
-            value={createForm.username}
-            placeholder={t('users.form.usernamePlaceholder')}
-            onChange={(event) => setCreateForm(prev => ({ ...prev, username: event.currentTarget.value }))}
-          />
-          <Input
-            label={t('users.form.realname')}
-            required
-            value={createForm.realname}
-            placeholder={t('users.form.realnamePlaceholder')}
-            onChange={(event) => setCreateForm(prev => ({ ...prev, realname: event.currentTarget.value }))}
-          />
-          <Input
-            label={t('users.form.email')}
-            required
-            type="email"
-            value={createForm.email}
-            placeholder={t('users.form.emailPlaceholder')}
-            onChange={(event) => setCreateForm(prev => ({ ...prev, email: event.currentTarget.value }))}
-          />
-          <SensitiveInput
-            label={t('users.form.password')}
-            required
-            minLength={6}
-            value={createForm.password}
-            placeholder={t('users.form.passwordPlaceholder')}
-            onValueChange={(value) => setCreateForm(prev => ({ ...prev, password: value }))}
-          />
-          <Select
-            label={t('users.form.role')}
-            required
-            value={createForm.role}
-            placeholder={t('users.form.rolePlaceholder')}
-            onValueChange={(value) => setCreateForm(prev => ({ ...prev, role: value as 'admin' | 'user' }))}
-          >
-            <Select.Option value="user">{t('users.roles.user')}</Select.Option>
-            <Select.Option value="admin">{t('users.roles.admin')}</Select.Option>
-          </Select>
-        </form>
-      </AppDialog>
+          <Select.Option value="user">{t('users.roles.user')}</Select.Option>
+          <Select.Option value="admin">{t('users.roles.admin')}</Select.Option>
+        </Select>
+      </DataFormDialog>
 
       <AppDialog
         open={!!confirmUser}
