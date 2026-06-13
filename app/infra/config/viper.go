@@ -22,8 +22,9 @@ type AppConfig struct {
 
 // ServerConfig controls how the HTTP server binds to the network.
 type ServerConfig struct {
-	Host string `mapstructure:"host"`
-	Port string `mapstructure:"port"`
+	Host           string `mapstructure:"host"`
+	Port           string `mapstructure:"port"`
+	FrontendDomain string `mapstructure:"frontend_domain"`
 }
 
 // DatabaseConfig holds datasource configuration derived from DATABASE_* envs.
@@ -37,8 +38,10 @@ type DatabaseConfig struct {
 
 // SessionConfig stores cookie/session information from SESSION_* envs.
 type SessionConfig struct {
-	Secret   string `mapstructure:"secret"`
-	MaxAgeMS int    `mapstructure:"max_age"`
+	Secret         string `mapstructure:"secret"`
+	MaxAgeMS       int    `mapstructure:"max_age"`
+	CookieSecure   bool   `mapstructure:"cookie_secure"`
+	CookieSameSite string `mapstructure:"cookie_same_site"`
 }
 
 // AWSConfig describes the AWS credentials defined in .env.example.
@@ -117,6 +120,7 @@ func loadDotEnv() error {
 func setDefaults(v *viper.Viper) {
 	v.SetDefault("server.host", "0.0.0.0")
 	v.SetDefault("server.port", "8080")
+	v.SetDefault("server.frontend_domain", "")
 	v.SetDefault("database.type", "sqlite")
 	v.SetDefault("database.url", "./data.db")
 	v.SetDefault("database.max_open_conns", 5)
@@ -124,21 +128,26 @@ func setDefaults(v *viper.Viper) {
 	v.SetDefault("database.conn_max_lifetime", time.Minute*30)
 	v.SetDefault("session.secret", "change-me")
 	v.SetDefault("session.max_age", int((14*time.Hour*24)/time.Millisecond))
+	v.SetDefault("session.cookie_secure", false)
+	v.SetDefault("session.cookie_same_site", "lax")
 	v.SetDefault("aws.region", "us-east-1")
 }
 
 func bindEnvVariables(v *viper.Viper) error {
 	envBindings := map[string]string{
-		"server.host":           "HOST",
-		"server.port":           "PORT",
-		"database.type":         "DATABASE_TYPE",
-		"database.url":          "DATABASE_URL",
-		"session.secret":        "SESSION_SECRET",
-		"session.max_age":       "SESSION_MAX_AGE",
-		"aws.access_key_id":     "AWS_ACCESS_KEY_ID",
-		"aws.secret_access_key": "AWS_SECRET_ACCESS_KEY",
-		"aws.region":            "AWS_REGION",
-		"aws.s3_bucket":         "AWS_S3_BUCKET",
+		"server.host":              "HOST",
+		"server.port":              "PORT",
+		"server.frontend_domain":   "FRONTEND_DOMAIN",
+		"database.type":            "DATABASE_TYPE",
+		"database.url":             "DATABASE_URL",
+		"session.secret":           "SESSION_SECRET",
+		"session.max_age":          "SESSION_MAX_AGE",
+		"session.cookie_secure":    "SESSION_COOKIE_SECURE",
+		"session.cookie_same_site": "SESSION_COOKIE_SAME_SITE",
+		"aws.access_key_id":        "AWS_ACCESS_KEY_ID",
+		"aws.secret_access_key":    "AWS_SECRET_ACCESS_KEY",
+		"aws.region":               "AWS_REGION",
+		"aws.s3_bucket":            "AWS_S3_BUCKET",
 	}
 
 	for key, env := range envBindings {

@@ -4,6 +4,7 @@ import { LayerCard } from '@cloudflare/kumo/components/layer-card'
 import { Pagination } from '@cloudflare/kumo/components/pagination'
 import { Table } from '@cloudflare/kumo/components/table'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 import type { DataTableController } from '@/hooks/use-data-table'
 
 export interface DataTableColumn<T> {
@@ -35,6 +36,7 @@ export function DataTable<T>({
   emptyTitle = 'No data',
   emptyDescription = 'There are no rows to show.',
 }: DataTableProps<T>) {
+  const { t } = useTranslation()
   const {
     data,
     total,
@@ -128,12 +130,30 @@ export function DataTable<T>({
         )}
 
         <div className="border-t border-kumo-line bg-kumo-base px-3 py-2">
-          <Pagination page={page} setPage={setPage} perPage={pageSize} totalCount={total}>
+          <Pagination
+            page={page}
+            setPage={setPage}
+            perPage={pageSize}
+            totalCount={total}
+            labels={{
+              navigation: t('pagination.navigation'),
+              firstPage: t('pagination.firstPage'),
+              previousPage: t('pagination.previousPage'),
+              nextPage: t('pagination.nextPage'),
+              lastPage: t('pagination.lastPage'),
+              pageNumber: t('pagination.pageNumber'),
+              pageSize: t('pagination.pageSize'),
+            }}
+          >
             {total === 0 ? (
               <span className="text-sm text-kumo-subtle">{emptyTitle}</span>
             ) : (
               <>
-                <Pagination.Info />
+                <Pagination.Info>
+                  {({ pageShowingRange, totalCount }) => (
+                    t('pagination.info', { range: pageShowingRange, total: totalCount ?? 0 })
+                  )}
+                </Pagination.Info>
                 <Pagination.Separator />
               </>
             )}
@@ -141,6 +161,7 @@ export function DataTable<T>({
               value={pageSize}
               onChange={setPageSize}
               options={pageSizeOptions}
+              label={t('pagination.perPage')}
             />
             <Pagination.Controls />
           </Pagination>

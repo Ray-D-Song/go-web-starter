@@ -8,7 +8,7 @@ export default function NotFound() {
   const { t } = useTranslation()
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-kumo-base p-6">
+    <div className="flex min-h-[calc(100svh-154px)] items-center justify-center bg-kumo-base p-6">
       <LayerCard className="w-full max-w-lg p-6 text-center">
         <div className="space-y-5">
           <div className="space-y-2">

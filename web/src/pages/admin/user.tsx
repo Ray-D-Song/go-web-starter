@@ -13,6 +13,7 @@ import { useDataTable } from '@/hooks/use-data-table'
 import { usersService, type User, type CreateUserRequest, type UsersListParams } from '@/services/users'
 import { useAuth } from '@/hooks/use-auth'
 import { useMessage } from '@/contexts/feedback-context'
+import { formatDateTime } from '@/utils/date'
 
 const defaultCreateForm: CreateUserRequest = {
   username: '',
@@ -131,7 +132,7 @@ export default function UserPage() {
     {
       key: 'createdAt',
       title: t('users.columns.createdAt'),
-      render: (record) => record.createdAt,
+      render: (record) => formatDateTime(record.createdAt),
     },
     {
       key: 'actions',

@@ -58,6 +58,7 @@ export function ProjectDialogs({
           label={t('projects.form.status')}
           value={String(formState.status ?? 1)}
           onValueChange={(value) => setFormState(prev => ({ ...prev, status: Number(value) }))}
+          renderValue={(value) => String(value) === '1' ? t('projects.status.enabled') : t('projects.status.disabled')}
         >
           <Select.Option value="1">{t('projects.status.enabled')}</Select.Option>
           <Select.Option value="0">{t('projects.status.disabled')}</Select.Option>
@@ -81,7 +82,7 @@ export function ProjectDialogs({
       <DataFormDialog
         open={!!editingProject}
         title={t('projects.editProject')}
-        confirmText={t('projects.editProject')}
+        confirmText={t('projects.actions.submit')}
         onOpenChange={(open) => !open && setEditingProject(null)}
         onSubmit={onEdit}
       >

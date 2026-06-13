@@ -1,9 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
-import { Route, Router } from 'preact-iso'
+import { Route, Router, useLocation } from 'preact-iso'
 import MainLayout from '@/components/main-layout'
 import PageErrorBoundary from '@/components/page-error-boundary'
 import GuardRoute, { AuthGuard } from '@/components/guard-route'
-import { type ComponentType, type ReactNode } from 'react'
+import { useEffect, type ComponentType, type ReactNode } from 'react'
 
 function PageErrorBoundaryWrapper({ children, pageName }: { children: ReactNode; pageName: string }) {
   return (
@@ -11,6 +11,16 @@ function PageErrorBoundaryWrapper({ children, pageName }: { children: ReactNode;
       {children}
     </PageErrorBoundary>
   )
+}
+
+function RootRedirect() {
+  const location = useLocation()
+
+  useEffect(() => {
+    location.route('/home', true)
+  }, [location])
+
+  return null
 }
 
 interface BaseMeta {
@@ -145,6 +155,7 @@ export function defineRouter(
       <AuthGuard>
         <MainLayout>
           <Router>
+            <Route path="/" component={RootRedirect} />
             {routes.map((routeConfig) => (
               <Route
                 key={routeConfig.path}
@@ -169,6 +180,7 @@ export function defineRouter(
             component={routeConfig.component}
           />
         ))}
+        <Route path="/" component={ProtectedAppRoutes} />
         <Route path="/*" component={ProtectedAppRoutes} />
         {defaultRoute ? <Route key="default" default component={defaultRoute.component} /> : <></>}
       </Router>

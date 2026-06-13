@@ -2,6 +2,7 @@ import { Dialog } from '@cloudflare/kumo/components/dialog'
 import { Button } from '@cloudflare/kumo/components/button'
 import type { ButtonProps } from '@cloudflare/kumo/components/button'
 import type { ReactNode } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export interface AppDialogProps {
   open: boolean
@@ -24,7 +25,7 @@ export function AppDialog({
   description,
   children,
   confirmText,
-  cancelText = 'Cancel',
+  cancelText,
   confirmVariant = 'primary',
   loading,
   size = 'base',
@@ -32,6 +33,9 @@ export function AppDialog({
   onOpenChange,
   onConfirm,
 }: AppDialogProps) {
+  const { t } = useTranslation()
+  const resolvedCancelText = cancelText ?? t('common.cancel')
+
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange} role={role}>
       <Dialog size={size} className="w-[calc(100vw-2rem)] max-w-2xl p-6">
@@ -51,7 +55,7 @@ export function AppDialog({
 
                   return (
                     <Button {...closeProps} type="button" variant="secondary">
-                      {cancelText}
+                      {resolvedCancelText}
                     </Button>
                   )
                 }}

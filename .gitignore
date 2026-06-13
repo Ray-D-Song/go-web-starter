@@ -21,6 +21,7 @@ vendor/
 # Binary output directory
 bin/
 dist/
+build/
 
 # IDE specific files
 .idea/
@@ -66,4 +67,4 @@ stats.html
 
 *.db
 
-server
+/server

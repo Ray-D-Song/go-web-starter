@@ -24,7 +24,8 @@ type AuthHandler struct {
 	sessionStore         *store.SessionStore
 	sessionMaxAgeSeconds int
 	sessionSecret        string
-	isProduction         bool
+	cookieSecure         bool
+	cookieSameSite       http.SameSite
 }
 
 // NewAuthHandler constructs AuthHandler.
@@ -39,7 +40,8 @@ func NewAuthHandler(service *service.AuthService, sessionStore *store.SessionSto
 		sessionStore:         sessionStore,
 		sessionMaxAgeSeconds: maxAge,
 		sessionSecret:        cfg.Session.Secret,
-		isProduction:         true,
+		cookieSecure:         cfg.Session.CookieSecure,
+		cookieSameSite:       parseCookieSameSite(cfg.Session.CookieSameSite),
 	}
 }
 
@@ -105,8 +107,8 @@ func (h *AuthHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Generate random session ID and store in memory
-	sessionID, err := h.sessionStore.Create(user.ID)
+	// Generate random session ID and persist the session
+	sessionID, err := h.sessionStore.Create(r.Context(), user.ID)
 	if err != nil {
 		httpx.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to create session"})
 		return
@@ -116,23 +118,14 @@ func (h *AuthHandler) handleLogin(w http.ResponseWriter, r *http.Request) {
 	signedSessionID := h.signSessionID(sessionID)
 
 	maxAge := h.sessionMaxAgeSeconds
-	sameSite := http.SameSiteDefaultMode
-	secure := false
-
-	// In production, use Secure and SameSite=Strict
-	if h.isProduction {
-		secure = true
-		sameSite = http.SameSiteStrictMode
-	}
-
 	http.SetCookie(w, &http.Cookie{
 		Name:     middleware.SessionCookieName,
 		Value:    signedSessionID,
 		MaxAge:   maxAge,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   secure,
-		SameSite: sameSite,
+		Secure:   h.cookieSecure,
+		SameSite: h.cookieSameSite,
 	})
 
 	httpx.WriteJSON(w, http.StatusOK, toAuthResponse(user))
@@ -144,7 +137,7 @@ func (h *AuthHandler) handleLogout(w http.ResponseWriter, r *http.Request) {
 		// Verify and extract the original session ID
 		if sessionID, valid := h.verifySessionID(cookie.Value); valid {
 			// Delete session from store
-			h.sessionStore.Delete(sessionID)
+			_ = h.sessionStore.Delete(r.Context(), sessionID)
 		}
 	}
 
@@ -155,9 +148,24 @@ func (h *AuthHandler) handleLogout(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1, // Expire immediately
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   h.cookieSecure,
+		SameSite: h.cookieSameSite,
 	})
 
 	httpx.WriteJSON(w, http.StatusOK, map[string]string{"message": "logged out successfully"})
+}
+
+func parseCookieSameSite(value string) http.SameSite {
+	switch strings.ToLower(strings.TrimSpace(value)) {
+	case "strict":
+		return http.SameSiteStrictMode
+	case "none":
+		return http.SameSiteNoneMode
+	case "default":
+		return http.SameSiteDefaultMode
+	default:
+		return http.SameSiteLaxMode
+	}
 }
 
 func (h *AuthHandler) handleGetCurrentUser(w http.ResponseWriter, r *http.Request) {

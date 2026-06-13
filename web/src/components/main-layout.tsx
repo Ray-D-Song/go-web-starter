@@ -33,6 +33,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
 
   const filteredNav = useMemo(() => filterNavRoutes(navRoute.children, isAdmin), [navRoute.children, isAdmin])
   const breadcrumbs = getBreadcrumbs(location.path)
+  const shouldShowHomeLink = location.path !== '/home'
 
   const handleLogout = async () => {
     await logout()
@@ -80,10 +81,10 @@ export default function MainLayout({ children }: { children: ReactNode }) {
       <main className="min-h-svh min-w-0 flex-1 bg-kumo-canvas">
         <header className="sticky top-0 z-10 flex h-[58px] items-center justify-between gap-3 border-b border-kumo-line bg-kumo-canvas/90 px-5 backdrop-blur md:px-8">
           <Breadcrumbs size="sm" className="min-w-0">
-            <Breadcrumbs.Link href="/home">首页</Breadcrumbs.Link>
+            {shouldShowHomeLink ? <Breadcrumbs.Link href="/home">首页</Breadcrumbs.Link> : <></>}
             {breadcrumbs.map((item, index) => (
               <span key={item.path} className="contents">
-                <Breadcrumbs.Separator />
+                {shouldShowHomeLink || index > 0 ? <Breadcrumbs.Separator /> : <></>}
                 {index === breadcrumbs.length - 1 ? (
                   <Breadcrumbs.Current>{item.title}</Breadcrumbs.Current>
                 ) : (
@@ -108,7 +109,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
             </DropdownMenu>
           </div>
         </header>
-        <div className="mx-auto w-full max-w-7xl px-5 py-6 md:px-8 md:py-8">
+        <div className="mx-auto w-full p-6">
           {children}
         </div>
       </main>

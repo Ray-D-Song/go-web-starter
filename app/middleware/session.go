@@ -35,8 +35,12 @@ func RequireSession(sessionStore *store.SessionStore, sessionSecret string) func
 				return
 			}
 
-			// Validate session against in-memory store
-			userID, exists := sessionStore.Get(sessionID)
+			// Validate session against persisted store
+			userID, exists, err := sessionStore.Get(r.Context(), sessionID)
+			if err != nil {
+				httpx.WriteJSON(w, http.StatusInternalServerError, map[string]string{"error": "failed to validate session"})
+				return
+			}
 			if !exists {
 				httpx.WriteJSON(w, http.StatusUnauthorized, map[string]string{"error": "unauthorized"})
 				return

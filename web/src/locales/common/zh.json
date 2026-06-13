@@ -3,6 +3,20 @@
     "unknownError": "未知错误",
     "responseHandlerError": "数据处理错误"
   },
+  "common": {
+    "cancel": "取消"
+  },
+  "pagination": {
+    "navigation": "分页",
+    "firstPage": "第一页",
+    "previousPage": "上一页",
+    "nextPage": "下一页",
+    "lastPage": "最后一页",
+    "pageNumber": "页码",
+    "pageSize": "每页条数",
+    "info": "显示 {{range}}，共 {{total}} 条",
+    "perPage": "每页："
+  },
   "error": {
     "networkError": "网络异常",
     "global": {

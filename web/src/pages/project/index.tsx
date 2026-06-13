@@ -9,6 +9,7 @@ import { projectsService, type Project, type CreateProjectRequest, type UpdatePr
 import { useAuth } from '@/hooks/use-auth'
 import { useMessage } from '@/contexts/feedback-context'
 import { useNavigate } from '@/hooks/use-navigate'
+import { formatDateTime } from '@/utils/date'
 import { ProjectDialogs } from './project-dialogs'
 import { defaultProjectForm, type ProjectFormState } from './project-form'
 
@@ -148,12 +149,12 @@ export default function ProjectPage() {
     {
       key: 'createdAt',
       title: t('projects.columns.createdAt'),
-      render: (record) => record.createdAt,
+      render: (record) => formatDateTime(record.createdAt),
     },
     {
       key: 'updatedAt',
       title: t('projects.columns.updatedAt'),
-      render: (record) => record.updatedAt,
+      render: (record) => formatDateTime(record.updatedAt),
     },
     {
       key: 'actions',

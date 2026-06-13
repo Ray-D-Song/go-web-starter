@@ -2,7 +2,7 @@
 
 # Variables
 BINARY_NAME=server
-GO_MODULE=github.com/your-org/tempalte
+GO_MODULE=github.com/ray-d-song/watchmen
 CMD_DIR=./cmd/server
 WEB_DIR=./web
 STATIC_DIR=./app/infra/static/web-dist
@@ -54,18 +54,18 @@ clean: ## Clean build artifacts
 	@echo "$(GREEN)Done!$(NC)"
 
 # Web commands
-web-install: ## Install web dependencies using bun
+web-install: ## Install web dependencies using pnpm
 	@echo "$(GREEN)Installing web dependencies...$(NC)"
-	@cd $(WEB_DIR) && bun install
+	@cd $(WEB_DIR) && pnpm install
 	@echo "$(GREEN)Done!$(NC)"
 
 web-dev: ## Run web development server
 	@echo "$(GREEN)Starting web development server...$(NC)"
-	@cd $(WEB_DIR) && bun run dev
+	@cd $(WEB_DIR) && pnpm dev
 
 web-build: ## Build web for production
 	@echo "$(GREEN)Building web...$(NC)"
-	@cd $(WEB_DIR) && bun run build
+	@cd $(WEB_DIR) && pnpm build
 	@echo "$(GREEN)Web build complete!$(NC)"
 	@ls -lh $(STATIC_DIR)
 
@@ -76,15 +76,15 @@ web-clean: ## Clean web build artifacts
 
 web-lint: ## Lint web code
 	@echo "$(GREEN)Linting web code...$(NC)"
-	@cd $(WEB_DIR) && bun run lint
+	@cd $(WEB_DIR) && pnpm lint
 
 web-type-check: ## Type check web code
 	@echo "$(GREEN)Type checking web code...$(NC)"
-	@cd $(WEB_DIR) && bun run type:check
+	@cd $(WEB_DIR) && pnpm type:check
 
 web-check-i18n: ## Check i18n translations
 	@echo "$(GREEN)Checking i18n...$(NC)"
-	@cd $(WEB_DIR) && bun run check:i18n
+	@cd $(WEB_DIR) && pnpm check:i18n
 
 # Integrated commands
 build: web-build server-build ## Build web first, then build the Go server
@@ -96,8 +96,8 @@ dev: ## Run both web and server in development mode (requires separate terminals
 	@echo "$(YELLOW)Note: This will run both servers. Press Ctrl+C to stop both.$(NC)"
 	@echo "$(GREEN)Starting development servers...$(NC)"
 	@trap 'kill 0' EXIT; \
-	(cd $(WEB_DIR) && bun run dev) & \
-	go run $(CMD_DIR)/main.go
+	go run $(CMD_DIR)/main.go & \
+	(cd $(WEB_DIR) && pnpm dev)
 
 install: deps web-install ## Install all dependencies (Go + Web)
 	@echo "$(GREEN)All dependencies installed!$(NC)"

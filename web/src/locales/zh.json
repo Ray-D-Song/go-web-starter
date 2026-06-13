@@ -82,13 +82,14 @@
       "actions": "操作"
     },
     "status": {
-      "enabled": "启用",
-      "disabled": "禁用"
+      "enabled": "开启",
+      "disabled": "关闭"
     },
     "actions": {
       "view": "查看",
       "edit": "编辑",
-      "delete": "删除"
+      "delete": "删除",
+      "submit": "提交"
     },
     "form": {
       "name": "名称",
