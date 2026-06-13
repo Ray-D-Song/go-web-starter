@@ -1,12 +1,13 @@
-.PHONY: help build server-build run run-prod test clean deps fmt web-install web-dev web-build web-clean build-all dev
+.PHONY: help build server-build run run-prod test clean deps fmt static-dev web-install web-dev web-build web-clean build-all dev
 
 # Variables
 BINARY_NAME=server
-GO_MODULE=github.com/ray-d-song/watchmen
+GO_MODULE=github.com/your-org/tempalte
 CMD_DIR=./cmd/server
 WEB_DIR=./web
 STATIC_DIR=./app/infra/static/web-dist
 BUILD_DIR=./build
+PKG_MANAGER=pnpm
 
 # Colors for output
 GREEN=\033[0;32m
@@ -25,7 +26,7 @@ server-build: ## Build the Go server binary
 	@echo "$(GREEN)Build complete: $(BUILD_DIR)/$(BINARY_NAME)$(NC)"
 	@ls -lh $(BUILD_DIR)/$(BINARY_NAME)
 
-run: ## Run the Go server in development mode
+run: static-dev ## Run the Go server in development mode
 	@echo "$(GREEN)Running server in development mode...$(NC)"
 	@DEBUG=true go run $(CMD_DIR)/main.go
 
@@ -53,38 +54,42 @@ clean: ## Clean build artifacts
 	@rm -rf $(BUILD_DIR)
 	@echo "$(GREEN)Done!$(NC)"
 
+static-dev: ## Ensure embedded static assets exist for development
+	@mkdir -p $(STATIC_DIR)
+	@test -f $(STATIC_DIR)/index.html || printf '<!doctype html><title>Template Dev</title>' > $(STATIC_DIR)/index.html
+
 # Web commands
 web-install: ## Install web dependencies using pnpm
 	@echo "$(GREEN)Installing web dependencies...$(NC)"
-	@cd $(WEB_DIR) && pnpm install
+	@cd $(WEB_DIR) && $(PKG_MANAGER) install
 	@echo "$(GREEN)Done!$(NC)"
 
 web-dev: ## Run web development server
 	@echo "$(GREEN)Starting web development server...$(NC)"
-	@cd $(WEB_DIR) && pnpm dev
+	@cd $(WEB_DIR) && $(PKG_MANAGER) dev
 
 web-build: ## Build web for production
 	@echo "$(GREEN)Building web...$(NC)"
-	@cd $(WEB_DIR) && pnpm build
+	@cd $(WEB_DIR) && $(PKG_MANAGER) build
 	@echo "$(GREEN)Web build complete!$(NC)"
 	@ls -lh $(STATIC_DIR)
 
 web-clean: ## Clean web build artifacts
 	@echo "$(GREEN)Cleaning web artifacts...$(NC)"
-	@rm -rf $(WEB_DIR)/dist
+	@rm -rf $(STATIC_DIR) $(WEB_DIR)/stats.html
 	@echo "$(GREEN)Done!$(NC)"
 
 web-lint: ## Lint web code
 	@echo "$(GREEN)Linting web code...$(NC)"
-	@cd $(WEB_DIR) && pnpm lint
+	@cd $(WEB_DIR) && $(PKG_MANAGER) lint
 
 web-type-check: ## Type check web code
 	@echo "$(GREEN)Type checking web code...$(NC)"
-	@cd $(WEB_DIR) && pnpm type:check
+	@cd $(WEB_DIR) && $(PKG_MANAGER) type:check
 
 web-check-i18n: ## Check i18n translations
 	@echo "$(GREEN)Checking i18n...$(NC)"
-	@cd $(WEB_DIR) && pnpm check:i18n
+	@cd $(WEB_DIR) && $(PKG_MANAGER) check:i18n
 
 # Integrated commands
 build: web-build server-build ## Build web first, then build the Go server
@@ -96,8 +101,9 @@ dev: ## Run both web and server in development mode (requires separate terminals
 	@echo "$(YELLOW)Note: This will run both servers. Press Ctrl+C to stop both.$(NC)"
 	@echo "$(GREEN)Starting development servers...$(NC)"
 	@trap 'kill 0' EXIT; \
+	$(MAKE) static-dev >/dev/null; \
 	go run $(CMD_DIR)/main.go & \
-	(cd $(WEB_DIR) && pnpm dev)
+	(cd $(WEB_DIR) && $(PKG_MANAGER) dev)
 
 install: deps web-install ## Install all dependencies (Go + Web)
 	@echo "$(GREEN)All dependencies installed!$(NC)"
