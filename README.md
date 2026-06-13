@@ -19,5 +19,15 @@ Arguments:
 ## Build
 
 ```bash
-make build
+task build
+```
+
+Common tasks:
+
+```bash
+task install
+task dev
+task test
+task web:lint
+task web:type-check
 ```
