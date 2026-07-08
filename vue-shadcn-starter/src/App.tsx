@@ -1,44 +1,17 @@
-import { defineComponent, h, ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 import {
-  Bell,
   Boxes,
   ChartNoAxesColumn,
   LayoutDashboard,
-  Search,
   Settings,
   Users,
 } from '@lucide/vue'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Breadcrumb, BreadcrumbItem, BreadcrumbList, BreadcrumbPage } from '@/components/ui/breadcrumb'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Input } from '@/components/ui/input'
+import AdminLayout from '@/components/layout'
 import { Pagination, PaginationContent, PaginationNext, PaginationPrevious } from '@/components/ui/pagination'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarTrigger,
-} from '@/components/ui/sidebar'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 const menu = [
@@ -66,93 +39,8 @@ export default defineComponent(
   () => {
     const activeMenu = ref('仪表盘')
 
-    return () =>
-      h(SidebarProvider, null, {
-        default: () => (
-          <>
-            <Sidebar>
-              <SidebarHeader class="border-b px-4 py-3">
-                <div class="flex items-center gap-2">
-                  <div class="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-                    <LayoutDashboard class="size-4" />
-                  </div>
-                  <div>
-                    <p class="text-sm font-semibold">Vue Admin</p>
-                    <p class="text-xs text-muted-foreground">shadcn-vue starter</p>
-                  </div>
-                </div>
-              </SidebarHeader>
-
-              <SidebarContent>
-                <SidebarGroup>
-                  <SidebarGroupLabel>后台管理</SidebarGroupLabel>
-                  <SidebarGroupContent>
-                    <SidebarMenu>
-                      {menu.map((item) => {
-                        const Icon = item.icon
-
-                        return (
-                          <SidebarMenuItem key={item.title}>
-                            <SidebarMenuButton
-                              isActive={activeMenu.value === item.title}
-                            >
-                              <Icon />
-                              <span>{item.title}</span>
-                            </SidebarMenuButton>
-                          </SidebarMenuItem>
-                        )
-                      })}
-                    </SidebarMenu>
-                  </SidebarGroupContent>
-                </SidebarGroup>
-              </SidebarContent>
-
-              <SidebarFooter class="border-t p-3">
-                <div class="flex items-center gap-3">
-                  <Avatar class="size-8">
-                    <AvatarFallback>管</AvatarFallback>
-                  </Avatar>
-                  <div class="min-w-0">
-                    <p class="truncate text-sm font-medium">管理员</p>
-                    <p class="truncate text-xs text-muted-foreground">admin@example.com</p>
-                  </div>
-                </div>
-              </SidebarFooter>
-            </Sidebar>
-
-            <SidebarInset>
-              <header class="flex h-14 items-center gap-3 border-b px-4">
-                <SidebarTrigger />
-                <Breadcrumb>
-                  <BreadcrumbList>
-                    <BreadcrumbItem>
-                      <BreadcrumbPage>{activeMenu.value}</BreadcrumbPage>
-                    </BreadcrumbItem>
-                  </BreadcrumbList>
-                </Breadcrumb>
-                <div class="ml-auto flex items-center gap-2">
-                  <div class="relative hidden sm:block">
-                    <Search class="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
-                    {h(Input as any, { class: 'w-64 pl-8', placeholder: '搜索订单、用户或商品' })}
-                  </div>
-                  <Button variant="outline" size="icon" aria-label="通知">
-                    <Bell class="size-4" />
-                  </Button>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline">管理员</Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end">
-                      <DropdownMenuLabel>账号</DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem>个人资料</DropdownMenuItem>
-                      <DropdownMenuItem>退出登录</DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </header>
-
-              <main class="flex-1 space-y-4 p-4">
+    return () => (
+      <AdminLayout menu={menu} activeMenu={activeMenu.value}>
                 <section class="grid gap-4 md:grid-cols-3">
                   {stats.map((stat) => (
                     <Card key={stat.title}>
@@ -226,11 +114,8 @@ export default defineComponent(
                     </Pagination>
                   </div>
                 </section>
-              </main>
-            </SidebarInset>
-          </>
-        ),
-      })
+      </AdminLayout>
+    )
   },
   {
     name: 'App',
